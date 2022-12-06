@@ -24,35 +24,35 @@ let graph = [
 
 let highways = 
             [ [ false, false, false, false, false, false, false, false, false],
-              [ false, false, false, false, false, false, false, false, false],
-              [ false, true, false, false, false, false, false, false, false ], // true
-              [ false, false, false, false, false, false, false, false, false],
-              [ false, false, false, false, false, false, false, false, false],
+              [ false, false, true, false, false, false, false, false, false],
+              [ false, true, false, false, false, false, false, false, false ], // true at (1-2)
               [ false, false, false, false, false, false, false, false, false],
               [ false, false, false, false, false, false, false, false, false],
-              [ false, false, false, false, false, false, true, false, false ], // true
+              [ false, false, false, false, false, false, false, false, false],
+              [ false, false, false, false, false, false, false, true, false],
+              [ false, false, false, false, false, false, true, false, false ], // true (6-7)
               [ false, false, false, false, false, false, false, false, false]];
 
 let trafficWeights = 
-            [ [ 0, 4, 0, 0, 0, 0, 0, 8, 0 ],
-              [ 4, 0, 8, 0, 0, 0, 0, 11, 0 ],
-              [ 0, 8, 0, 7, 0, 4, 0, 0, 2 ],
+            [ [ 0, 10, 0, 0, 0, 0, 0, 90, 0 ],
+              [ 10, 0, 1, 0, 0, 0, 0, 20, 0 ],
+              [ 0, 1, 0, 7, 0, 4, 0, 0, 2 ],
               [ 0, 0, 7, 0, 9, 14, 0, 0, 0],
               [ 0, 0, 0, 9, 0, 10, 0, 0, 0 ],
               [ 0, 0, 4, 14, 10, 0, 2, 0, 0],
               [ 0, 0, 0, 0, 0, 2, 0, 1, 6 ],
-              [ 8, 11, 0, 0, 0, 0, 1, 0, 7 ],
-              [ 0, 0, 2, 0, 0, 0, 6, 7, 0 ] ];
+              [ 90, 20, 0, 0, 0, 0, 1, 0, 1],
+              [ 0, 0, 2, 0, 0, 0, 6, 1, 0 ] ];
 
 let terrainWeights = 
-            [ [ 0, 4, 0, 0, 0, 0, 0, 8, 0 ],
-              [ 4, 0, 8, 0, 0, 0, 0, 11, 0 ],
+            [ [ 0, 60, 0, 0, 0, 0, 0, 8, 0 ],
+              [ 60, 0, 8, 0, 0, 0, 0, 60, 0 ],
               [ 0, 8, 0, 7, 0, 4, 0, 0, 2 ],
               [ 0, 0, 7, 0, 9, 14, 0, 0, 0],
               [ 0, 0, 0, 9, 0, 10, 0, 0, 0 ],
               [ 0, 0, 4, 14, 10, 0, 2, 0, 0],
               [ 0, 0, 0, 0, 0, 2, 0, 1, 6 ],
-              [ 8, 11, 0, 0, 0, 0, 1, 0, 7 ],
+              [ 8, 60, 0, 0, 0, 0, 1, 0, 7 ],
               [ 0, 0, 2, 0, 0, 0, 6, 7, 0 ] ];
 
 function initEdgeWeights(amt){
@@ -280,11 +280,31 @@ function run(){
         alert("Please enter a valid vertex number.");
         return;
     }
+    let newWeights = edgeWeights;
 
-    let r = calcShortestPathFrom(start, vertices, edgeWeights, end);
+    if (document.getElementById("traffic-input").checked){
+        // input traffic in weight
+        newWeights = addWeights(newWeights, trafficWeights);
+    }
+    if (document.getElementById("terrain-input").checked){
+        newWeights = addWeights(newWeights, terrainWeights);
+    }
+
+    let r = calcShortestPathFrom(start, vertices, newWeights, end);
     drawShortestPath(r);
 }
 
+
+function addWeights(w1, w2){
+    let newW = init2DArr(w1.length);
+    
+    for (let i = 0; i < w1.length; i++){
+        for (j = 0; j < w1[i].length; j++){
+            newW[i][j] = w1[i][j] + w2[i][j];
+        }
+    }
+    return newW;
+}
 
 
 
@@ -364,7 +384,7 @@ function getActualPathBFS(path, startPt, endPt){
 
 // comparing time and paths between Dijkstra and BFS
 let begin = performance.now();
-let r = calcShortestPathBFS(graph, 0, 4);
+let r = calcShortestPathBFS(graph, 3, 6);
 let end = performance.now();
 
 console.log(begin);
@@ -374,7 +394,7 @@ console.log(r);
 console.log();
 
 let begin1 = performance.now()
-let r1 = calcShortestPathFrom(0, vertices, edgeWeights, 4);
+let r1 = calcShortestPathFrom(3, vertices, edgeWeights, 6);
 let end1 = performance.now();
 console.log(begin1);
 console.log(end1);
