@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' media='screen' href='./css/styles.css'>
+
+    <title>Fastest Route</title>
+</head>
+<body>
+    <div id="short-dist-container">
+        <canvas id="container" width="1000" height="600"></canvas>
+        <div id="interface-container">
+
+        
+            <button onclick="drawVertices()">See Vertices</button>
+            <button onclick="drawLines()">See Paths</button>
+            <button onclick="clearCanvas()">Clear</button>
+            <div id="choices">
+                <label for="starting-point">Starting Point</label>
+                <input type="number" name="starting-point" id="start-pt-input">
+                <br>
+
+                <label for="ending-point">Ending Point</label>
+                <input type="number" name="ending-point" id="end-pt-input">
+                <br><br><br><br>
+
+                <label for="highway">Exclude Highways</label>
+                <input type="checkbox" name="highway" id="highway-input" class="hover-input">
+                <br>
+
+                <label for="traffic">Consider Traffic</label>
+                <input type="checkbox" name="traffic" id="traffic-input" class="hover-input">
+                <br>
+
+                <label for="rough-terrain">Consider Rough Terrain</label>
+                <input type="checkbox" name="rough-terrain" id="terrain-input" class="hover-input">
+                <br><br><br><br>
+
+                <button id="get-fastest-route" onclick="run()">Get Fastest Route</button>
+
+            </div>
+        </div>
+    </div>
+    
+    
+    <script src="./js/ShortestPath.js"></script>
+    <script src="./js/Drawing.js"></script>
+    <script src="./js/testing.js"></script>
+
+
+</body>
+</html>
