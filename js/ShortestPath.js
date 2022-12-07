@@ -344,7 +344,7 @@ function calcShortestPathBFS(graph, startPt, endPt){ // graph is the edges
         temp.reverse;
         queue = temp.concat(queue);
     }
-    console.log(path);
+    //console.log(path);
     // get the actual path
     let actualPath = getActualPathBFS(path, startPt, endPt);
     return actualPath;
@@ -377,26 +377,180 @@ function getActualPathBFS(path, startPt, endPt){
 
 }
 
-//let r = calcShortestPathBFS(graph, 0, 4);
-//console.log(r);
 
-// testing ----------------------------------------------------
 
-// comparing time and paths between Dijkstra and BFS
-let begin = performance.now();
-let r = calcShortestPathBFS(graph, 3, 6);
-let end = performance.now();
 
-console.log(begin);
-console.log(end);
-console.log("time taken: " + (end-begin));
-console.log(r);
-console.log();
+// test time for Dijkstra 
+function getTimeDijkstra(startPt, endPt, trafficInclude, terrainInclude){
+    let newWeights = edgeWeights;
+    let begin = performance.now()
+    if (trafficInclude){
+        // input traffic in weight
+        newWeights = addWeights(newWeights, trafficWeights);
+    }
+    if (terrainInclude){
+        newWeights = addWeights(newWeights, terrainWeights);
+    }
+    let path = calcShortestPathFrom(startPt, vertices, newWeights, endPt);
+    let end = performance.now();
 
-let begin1 = performance.now()
-let r1 = calcShortestPathFrom(3, vertices, edgeWeights, 6);
-let end1 = performance.now();
-console.log(begin1);
-console.log(end1);
-console.log("time taken: " + (end1-begin1));
-console.log(r1);
+    let time = end - begin;
+
+    let result = {};
+    result.time = time;
+    result.path = path;
+    return result;
+}
+
+
+// test time for BFS 
+function getTimeBFS(startPt, endPt){
+    let begin = performance.now();
+    let path = calcShortestPathBFS(graph, startPt, endPt);
+    let end = performance.now();
+    
+    let time = end - begin;
+
+    let result = {};
+    result.time = time;
+    result.path = path;
+    return result;
+}
+
+// test time for all start points and endpts, get average difference in time
+function testForAllPts(amt, trafficInclude, terrainInclude){
+    let dFaster = 0;
+    let bfsFaster = 0;
+    let equalTime = 0;
+
+    let samePathsCounter = 0;
+    let total = 0;
+
+    for (let i = 0; i < amt; i++){
+        for (let j = 0; j < amt; j++){
+            let resultD = getTimeDijkstra(i, j, trafficInclude, terrainInclude);
+            let resultBFS = getTimeBFS(i, j);
+
+            let dTime = resultD.time;
+            let bfsTime = resultBFS.time;
+            if (dTime > bfsTime){
+                bfsFaster++;
+            } else if (bfsTime > dTime){
+                dFaster++;
+            }else {
+                equalTime++;
+            }
+            
+            if (pathsAreEqual(resultBFS.path, resultD.path)){
+                samePathsCounter++;
+            }
+            total++;
+
+            //console.log("Start: " + i + "  End: " + j);
+            //console.log("D: " + resultD.time + " -- BFS: " + resultBFS.time+ "\n"); 
+        }
+    }
+    console.log("Times D was faster: " + dFaster);
+    console.log("Times BFS was faster: " + bfsFaster);
+    console.log("Times when both were equal time: " + equalTime);
+    console.log("Times paths were the same: " + samePathsCounter + " out of " + total);
+
+    let theResult = {};
+    theResult.dFaster = dFaster;
+    theResult.bfsFaster = bfsFaster;
+    theResult.equalTime = equalTime;
+    theResult.samePathsCounter = samePathsCounter;
+    return theResult;
+}
+
+
+function pathsAreEqual(p1, p2){
+    if (p1.length != p2.length){
+        return false;
+    }
+    for (let i = 0; i < p1.length; i++){
+        if (p1[i] != p2[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
+
+// gets the average results
+function getTestTimeResults(repeatNumber){
+    let nnData = [];
+    let ynData = [];
+    let nyData = [];
+    let yyData = [];
+
+    for (let i = 0; i < repeatNumber; i++){
+        console.log(" No traffic, No terrain");
+        let nn = testForAllPts(9, false, false);
+        nnData.push(nn);
+
+        console.log(" \nYes traffic, No terrain");
+        let yn = testForAllPts(9, true, false);
+        ynData.push(yn);
+
+        console.log(" \n No traffic, Yes terrain");
+        let ny = testForAllPts(9, false, true);
+        nyData.push(ny);
+
+        console.log(" \n Yes traffic, Yes terrain");
+        let yy = testForAllPts(9, true, true);
+        yyData.push(yy);
+    }
+    console.log(" \nNo traffic, No terrain --- Average");
+    getAverage(nnData);
+    console.log(" \nYes traffic, No terrain --- Average");
+    getAverage(ynData);
+    console.log(" \n No traffic, Yes terrain --- Average");
+    getAverage(nyData);
+    console.log(" \n Yes traffic, Yes terrain --- Average");
+    getAverage(yyData);
+
+
+
+
+
+    
+}
+
+
+/*
+theResult.dFaster = dFaster;
+theResult.bfsFaster = bfsFaster;
+theResult.equalTime = equalTime;
+theResult.samePathsCounter = samePathsCounter;
+*/
+function getAverage(dataArr){
+    let dFaster = 0;
+    let bfsFaster = 0;
+    let equalTime = 0;
+    let samePathsCounter = 0;
+
+    let size = dataArr.length;
+
+    for (let i = 0; i < size; i++){
+        dFaster += dataArr[i].dFaster;
+        bfsFaster += dataArr[i].bfsFaster;
+        equalTime += dataArr[i].equalTime;
+        samePathsCounter += dataArr[i].samePathsCounter;
+    }
+
+    // get avg
+    dFaster = dFaster/size;
+    bfsFaster = bfsFaster/size;
+    equalTime = equalTime/size;
+    samePathsCounter = samePathsCounter/size;
+
+    console.log("Average times D is faster: " + dFaster);
+    console.log("Average times BFS is faster: " + bfsFaster);
+    console.log("Average times they are equal: " + equalTime);
+    console.log("Average same paths amount: " + samePathsCounter + " out of 81");
+}
+
+getTestTimeResults(100);
+
+
